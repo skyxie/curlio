@@ -1,0 +1,34 @@
+{
+  "name": "curlio",
+  "version": "0.0.0",
+  "scripts": {
+    "start" : "application.js",
+    "test" : "echo \"Error: no test specified\" && exit 1"
+  },
+ "repository": {
+    "type": "git",
+    "url": "https://github.com/skyxie/curlio.git"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "request" : "*",
+    "async" : "*",
+    "fs.extra": "*",
+    "underscore": "*",
+    "winston": "*",
+    "querystring": "*",
+    "express": "*",
+    "express-winston": "*",
+    "body-parser": "*",
+    "async": "*",
+    "ejs" : "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "sinon": "*",
+    "chai": "*",
+    "sinon-chai": "*"
+  }
+}
