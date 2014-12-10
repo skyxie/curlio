@@ -4,6 +4,8 @@ var path = require('path');
 var http = require('http');
 var https = require('https');
 var ejs = require('ejs');
+var events = require('events');
+var node_util = require('util');
 
 var _ = require('underscore');
 var Async = require('async');
@@ -21,7 +23,24 @@ var Request = function(opts, requestLoader, logger) {
   self.opts = opts;
   self.logger = logger;
 
+  self._runTimer = new utils.Timer();
+  self._loadTimer = new utils.Timer();
+  self._requestTimer = new utils.Timer();
+  self._pollResponses = [];
+
   return self;
+};
+
+node_util.inherits(Request, events.EventEmitter);
+
+Request.prototype.name = function() {
+  var self = this;
+
+  if (self.metadata) {
+    return "["+self.metadata.title+" - "+self.metadata.description+"]";
+  } else {
+    return "[unloaded request]";
+  }
 };
 
 Request.prototype.loadReq = function(req) {
@@ -47,11 +66,14 @@ Request.prototype.loadFunction = function() {
   var self = this;
 
   return function load(cb) {
+    self._loadTimer.start();
     self._loader(function(error, obj) {
       if (error) {
+        self._loadTimer.stop();
         cb(error);
       } else {
         self.loadObj(obj);
+        self.emit('load_complete', self, self._loadTimer.stop());
         cb();
       }
     });
@@ -66,22 +88,23 @@ Request.prototype.conditionFunction = function(conditionStr) {
   };
 };
 
-Request.prototype.successFunction = function(successStr) {
+Request.prototype.successFunction = function(success) {
   var self = this;
 
-  if (successStr) {
-    return self.conditionFunction(successStr);
+  if (success) {
+    return self.conditionFunction(success.condition);
   } else {
     // Default behavior for success is statusCode 20[0-9]
     return self.conditionFunction("<% if (/20[0-9]/.exec(response.statusCode)) { %>1<% } else { %>0<% } %>");
   }
 };
 
-Request.prototype.pollFunction = function(pollStr) {
+Request.prototype.pollFunction = function(poll) {
   var self = this;
 
-  if (pollStr) {
-    return self.conditionFunction(pollStr)
+  if (poll) {
+    self._pollInterval = poll.interval;
+    return self.conditionFunction(poll.condition)
   } else {
     // Default behavior for polling is no polling
     return function() { return false; }
@@ -160,6 +183,7 @@ Request.prototype.sendRequestFunction = function() {
     });
 
     request.on("error", cb);
+
     request.end(self.requestBody());
   };
 };
@@ -168,63 +192,59 @@ Request.prototype.parseBodyFunction = function() {
   var self = this;
 
   return function parseBody(responseBody, response, cb) {
-    var logResponse = function(body, resp) {
-      self.logger.info(
-        "\nSTATUS CODE: "+resp.statusCode+
-        "\nHEADERS: "+_.reduce(resp.headers, function(memo, val, key) { return memo + '\n  '+key+': '+val; }, '')+
-        "\nBODY:\n"+body
-      );
-    };
-
     if (/application\/.*json/.exec(response.headers['content-type']) || self.parser === "json") {
       utils.parseJSON(responseBody, function(error, obj) {
         if (error) {
           cb(error);
         } else {
-          var responseBodyStr = JSON.stringify(obj, undefined, 2);
-          logResponse(responseBodyStr, response);
           cb(null, obj, response)
         }
       });
     } else {
       // noop
-      logResponse(responseBody, response);
-      cb(null, responseBody, response)
+      cb(null, responseBody, response);
     }
   };
 };
 
-Request.prototype.setResponseFunction = function() {
+Request.prototype.addResponse = function(responseBody, response) {
   var self = this;
 
-  return function setResponse(responseBody, response, cb) {
-    self.response = response;
-    self.responseBody = responseBody;
-    cb();
-  };
+  var delta = self._requestTimer.stop();
+  self.response = response;
+  self.responseBody = responseBody;
+
+  self._pollResponses.push({
+    "elapsed_time" : delta,
+    "responseBody" : responseBody,
+    "response" : response
+  });
+
+  self.emit('request_complete', self, delta);
 };
 
 Request.prototype.sendFunction = function() {
   var self = this;
 
   return function sendParsePoll(cb) {
+    self._requestTimer.start();
     Async.waterfall(
       [
         self.sendRequestFunction(),
-        self.parseBodyFunction(),
-        self.setResponseFunction()
-      ], function poll(error) {
+        self.parseBodyFunction()
+      ], function poll(error, responseBody, response) {
         if (error) {
           cb(error);
         } else {
+          self.addResponse(responseBody, response);
           if (self.success()) {
             // Success condition has been met
             cb();
           } else if (self.poll()) {
             // Poll condition has been met
-            setTimeout(function() {sendParsePoll(cb); }, 10000);
+            setTimeout(function() {sendParsePoll(cb); }, self._pollInterval);
           } else {
-            cb(new Error("Sending request: "+self.request.method+" '"+self.request.url+"'"));
+            cb(new Error("Sending request: "+self.request.method+" '"+self.request.url+"' failed with status: "+response.statusCode));
           } 
         }
       }
@@ -235,14 +255,19 @@ Request.prototype.sendFunction = function() {
 Request.prototype.run = function(runCb) {
   var self = this;
 
-  Async.waterfall(
+  self._runTimer.start();
+
+  Async.series(
     [
       self.loadFunction(),
       self.runPrereqFunction(),
       self.applyPrereqFunction(),
       self.sendFunction(),
     ],
-    runCb
+    function runTimerCb(error) {
+      self.emit('run_complete', self, self._runTimer.stop());
+      runCb(error);
+    }
   );
 };
 
