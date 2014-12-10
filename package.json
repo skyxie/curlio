@@ -13,12 +13,12 @@
     "node": "0.10.x"
   },
   "dependencies": {
+    "ejs" : "*",
     "request" : "*",
     "async" : "*",
     "fs.extra": "*",
     "underscore": "*",
     "winston": "*",
-    "querystring": "*",
     "express": "*",
     "express-winston": "*",
     "body-parser": "*",
