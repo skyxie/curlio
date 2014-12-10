@@ -222,7 +222,7 @@ Request.prototype.sendFunction = function() {
             cb();
           } else if (self.poll()) {
             // Poll condition has been met
-            setTimeout(function() {sendParsePoll(cb); }, 1000);
+            setTimeout(function() {sendParsePoll(cb); }, 10000);
           } else {
             cb(new Error("Sending request: "+self.request.method+" '"+self.request.url+"'"));
           } 
