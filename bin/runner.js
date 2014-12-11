@@ -67,9 +67,9 @@ Async.parallel(
     
     attachListeners(request, i);
 
-    request.run(function(error, responseBody, response) {
+    request.run(function(error) {
       if (error) {
-        logger.error("Failed to send request! - "+error.message);
+        logger.error("Failed to send request! - "+error.message+"\n"+error.stack);
       } else {
         logger.info("DONE");
       }

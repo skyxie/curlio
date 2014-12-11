@@ -1,0 +1,9 @@
+<div class="response block">
+  <% _.each(response.headers, function(val, key) { %>
+    <b><%= key %></b>: <%= val %><br>
+  <% }) %>
+
+  <br><b>Body</b><pre>
+<%= JSON.stringify(response.body, undefined, 2) %>
+  </pre>
+</div>

@@ -33,10 +33,10 @@ RequestLoader.prototype.loadUrlFunction = function(urlStr) {
 
   return function loadUrl(loadUrlCb) {
     if (self.cache.url[urlStr]) {
-      self.logger.debug("Loading request object from cache");
+      self.logger.debug("Loading request object from cache at url.%s", urlStr);
       loadUrlCb(null, self.cache.url[urlStr]);
     } else {
-      self.logger.debug("Retrieving request from url: "+urlStr);
+      self.logger.debug("Loading request object from url: %s", urlStr);
       Async.waterfall([
         function request(cb) {
           var url = Url.parse(urlStr);
@@ -69,8 +69,10 @@ RequestLoader.prototype.loadFileFunction = function(file) {
   
   return function loadFile(loadFileCb) {
     if (self.cache.file[file]) {
+      self.logger.debug("Loading request object from cache at %s.%s", 'file', file);
       loadFileCb(null, self.cache.file[file]);
     } else {
+      self.logger.debug("Loading request object from file: %s", file);
       Async.waterfall([
         function readFile(cb) { fs.readFile(file, cb); },
         function parseBuffer(buffer, cb) { utils.parseJSON(buffer.toString(), cb); },

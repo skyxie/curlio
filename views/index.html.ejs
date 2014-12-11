@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <style>
+    body { background-color: #f2f2f2; }
+
+    div {
+      border-radius: 5px;
+      font-family: ProximaNova,"helvetica neue", helvetica, arial, sans-serif;
+    }
+
+    div.wrapper {
+      width: 70%;
+      margin-top: 10px;
+      margin-bottom: 100px;
+      margin-left: 10%;
+      margin-right: 10%;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      padding-left: 5%;
+      padding-right:  5%;
+      background-color: #fff;
+      text-align: center;
+      color: #505050;
+    }
+
+    div.request {
+      background-color: #f2f2f2;
+    }
+
+    div.response {
+      background-color: #B1E4E3;
+    }
+
+    div.block {
+      text-align: left;
+      padding: 10px 15px 10px 15px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+
+    div#form_wrapper {
+      text-align: left;
+      height: 40px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    div#run-button {
+      position: absolute;
+      left: 92%;
+      width: 55px;
+      height: 25px;
+      padding: 2px;
+      text-align: center;
+      vertical-align: middle;
+      background-color: #1bcdcf;
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+      float: left;
+    }
+
+    div#run-button-text {
+      position: absolute;
+      top: 20%;
+      left: 20%;
+    }
+
+    input[type="text"] {
+      position: absolute;
+      width: 88%;
+      min-height: 20px;
+      padding-left: 10px;
+      padding-right: 10px;
+      float: left;
+    }
+
+    pre {
+      overflow: auto; width: 100%;
+    }
+
+  </style>
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+  <script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script> 
+  <script type="text/javascript" src="ejs.js"></script>
+  <script type="text/javascript" src="underscore.js"></script>
+
+  <script>
+    $( document ).ready(function() {
+      function showRequest(formData, jqForm, options) {
+        $('#response').empty();
+        return true;
+      }
+
+      function showResponse(responseText, statusText, xhr, $form)  {
+        var request = responseText.request,
+            response = responseText.response;
+
+        var requestElem = new EJS({url: 'request.html.ejs'}).render({'request' : request});
+        $('#response').append(requestElem);
+
+        var responseElem = new EJS({url: 'response.html.ejs'}).render({'response' : response});
+        $('#response').append(responseElem);
+      }
+
+      $('#url-form').ajaxForm({
+        "beforeSubmit" : showRequest,
+        "success" : showResponse
+      }); 
+
+      $('#run-button').on('click', function() {
+        $('#url-form').submit();
+      });
+    });
+  </script>
+
+  <title>curlio</title>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div id="form_wrapper">
+      <form id="url-form" method="post" action="/">
+        <input type="text" name="url" title="URL" placeholder="Request Object URL" />
+        <div id="run-button"><div id="run-button-text">RUN</div></div>
+      </form>
+    </div>
+
+    <div id="response">
+    </div>
+  </div>
+
+</body>
+</html>

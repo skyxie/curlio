@@ -13,7 +13,7 @@ var querystring = require('querystring');
 
 var utils = require(path.join('..', 'lib', 'utils'));
 
-var Request = function(opts, requestLoader, logger) {
+var Request = function(opts, requestLoader) {
   var self = this;
 
   self.requestLoader = requestLoader;
@@ -21,7 +21,6 @@ var Request = function(opts, requestLoader, logger) {
   self._loader = requestLoader.loadFunction(opts);
   self.parser = opts.parser;
   self.opts = opts;
-  self.logger = logger;
 
   self._runTimer = new utils.Timer();
   self._loadTimer = new utils.Timer();
@@ -58,7 +57,7 @@ Request.prototype.loadObj = function(obj) {
   this.poll = this.pollFunction(obj.poll);
 
   if (obj.prereq) {
-    this.prereq = new Request(obj.prereq, this.requestLoader, this.logger);
+    this.prereq = new Request(obj.prereq, this.requestLoader);
   }
 };
 
@@ -84,7 +83,7 @@ Request.prototype.conditionFunction = function(conditionStr) {
   var self = this;
 
   return function customCondition() {
-    return "1" === ejs.render(conditionStr, { 'locals': {'responseBody' : self.responseBody, 'response' : self.response}});
+    return "1" === ejs.render(conditionStr, { 'locals': {'responseBody' : self.responseBody, 'response' : self.response }});
   };
 };
 
@@ -116,8 +115,9 @@ Request.prototype.requestHeaders = function() {
 
   var headers = self.request.headers;
 
-  if (self.request.body) {
-    headers['Content-Length'] = self.requestBody().length;
+  var body = self.requestBody();
+  if (body) {
+    headers['Content-Length'] = body.length;
   }
 
   return headers;
@@ -166,8 +166,6 @@ Request.prototype.sendRequestFunction = function() {
   var self = this;
 
   return function sendReq(cb) {
-    self.logger.debug("Sending request: "+self.request.method+" '"+self.request.url+"'", self.metadata);
-
     var url = self.url;
 
     var protocol = (/^https/.exec(url.protocol) ? https : http);
@@ -242,7 +240,7 @@ Request.prototype.sendFunction = function() {
             cb();
           } else if (self.poll()) {
             // Poll condition has been met
-            setTimeout(function() {sendParsePoll(cb); }, self._pollInterval);
+            setTimeout(function() { sendParsePoll(cb); }, self._pollInterval);
           } else {
             cb(new Error("Sending request: "+self.request.method+" '"+self.request.url+"' failed with status: "+response.statusCode));
           } 

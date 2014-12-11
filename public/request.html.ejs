@@ -1,0 +1,10 @@
+<div class="request block">
+  <b><%= request.method %></b> <%= request.url %>
+  <% _.each(request.headers, function(val, key) { %>
+    <br><b><%= key %></b>: <%= val %>
+  <% }) %>
+
+  <br><br><b>Body</b><pre>
+<%= request.body %>
+  </pre>
+</div>
