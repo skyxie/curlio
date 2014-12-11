@@ -1,3 +1,8 @@
+<%
+  var requestBody = typeof(request.body) == "object" ? JSON.stringify(request.body, undefined, 2) : request.body;
+  var responseBody = typeof(response.body) == "object" ? JSON.stringify(response.body, undefined, 2) : response.body;
+  responseBody = responseBody.replace(/"(http[^"]*)"/g, '"<a href="$1">$1</a>');
+%>
 <div class="request block">
   <div class="collapse-expand expand"></div>
   <div class="request-title">
@@ -10,7 +15,7 @@
     <% }) %>
 
     <b>Body</b>
-<pre><%= typeof(request.body) == "object" ? JSON.stringify(request.body, undefined, 2) : request.body %></pre>
+<pre><%=  requestBody %></pre>
 
     <div class="response block req-resp">
       <b>Elapsed Time:</b> <%= elapsedtime %>ms<br>
@@ -20,7 +25,7 @@
       <% }) %>
 
       <br><b>Body</b>
-<pre><%= JSON.stringify(response.body, undefined, 2) %></pre>
+<pre><%= responseBody %></pre>
     </div>
   </div>
 </div>
