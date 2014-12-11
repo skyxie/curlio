@@ -3,37 +3,64 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <link rel="stylesheet" type="text/css" href="curlio.css">
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
-  <script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script> 
+  <script type="text/javascript" src="jquery-2.1.1.js"></script>
   <script type="text/javascript" src="ejs.js"></script>
   <script type="text/javascript" src="underscore.js"></script>
 
   <script>
     $( document ).ready(function() {
-      function showRequest(formData, jqForm, options) {
-        $('#response').empty();
-        $('#spin-wrapper').show();
-        return true;
+      function sendCb(error) {
+        console.log(error.message);
       }
 
-      function showResponse(responseText, statusText, xhr, $form)  {
-        var request = responseText.request,
-            response = responseText.response;
+      function socketLog(msg) {
+        $('#socket-status').append('<div>'+msg+'</div>');
+      }
 
-        $('#spin-wrapper').hide();
-
-        var requestElem = new EJS({url: 'request.html.ejs'}).render({'request' : request, 'response' : response});
-
+      function appendReqElem(data) {
+        var requestElem = new EJS({url: 'request.html.ejs'}).render(data);
         $('#response').prepend(requestElem);
       }
 
-      $('#url-form').ajaxForm({
-        "beforeSubmit" : showRequest,
-        "success" : showResponse
-      }); 
+      var socket = new WebSocket('ws://localhost:8001');
 
-      $('#run-button').on('click', function() {
-        $('#url-form').submit();
+      socket.onopen = function(event) { socketLog('Connected to: '+event.currentTarget.url); };
+
+      socket.onerror = function(error) { socketLog('WebSocket Error: '+error); };
+
+      socket.onclose = function(event) { socketLog('Disconnected from WebSocket'); };
+
+      socket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+
+        if (data.event === 'run_complete') {
+          $('#run-button').show();
+          $("#run-button-loader").hide();
+          socketLog('Run '+data.request_name+' in '+data.elapsedtime+'ms');
+        } else if (data.event === 'load_complete') {
+          socketLog('Loaded '+data.request_name+' in '+data.elapsedtime+'ms');
+        } else {
+          appendReqElem(data);
+        }
+      };
+
+      $("#run-button").on('click', function() {
+        $('#response').empty();
+        var message = JSON.stringify({"url" : $('#url')[0].value});
+        socket.send(message, sendCb);
+      });
+
+      $('#response').on('click', 'div.collapse-expand', function(event) {
+        var e = $(this);
+        if (e.hasClass('expand')) {
+          e.parent().find(".req-resp").hide();
+          e.removeClass('expand');
+          e.addClass('collapse');
+        } else {
+          e.parent().find(".req-resp").show();
+          e.removeClass('collapse');
+          e.addClass('expand');
+        }
       });
     });
   </script>
@@ -44,20 +71,21 @@
 
   <div class="wrapper">
     <div id="form_wrapper">
-      <form id="url-form" method="post" action="/">
-        <input type="text" name="url" title="URL" placeholder="Request Object URL" value="<%= url %>" />
-        <div id="run-button"><div id="run-button-text">RUN</div></div>
-      </form>
-
+      <input type="text" id="url" name="url" title="URL" placeholder="Request Object URL" value="<%= url %>" />
+      <div id="run-button">
+        <div id="run-button-text">RUN</div>
+      </div>
+      <div id="run-button-loader"></div>
     </div>
 
     <span id="response-wrapper">
-      <span id="spin-wrapper">
-        <img src="/img/spin.gif">
-      </span>
       <span id="response">
       </span>
     </span>
+
+    <div id="socket-status">
+      <div>Socket status ...</div>
+    </div>
   </div>
 
 </body>

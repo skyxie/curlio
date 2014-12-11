@@ -36,10 +36,25 @@ div.block {
   box-shadow: 0 2px 4px rgba(0,0,0,.1);
 }
 
+div.collapse-expand {
+  float: right;
+  width: 11px;
+  height: 11px;
+  background-image: url('collapse_expand.png');
+  cursor: pointer;
+}
+div.collapse { background-position: -11px 0px; }
+div.expand { background-position: 0px 0px; }
+
+div#socket-status {
+  text-align: left;
+  font-size: x-small;
+  color: #b1e4e3;
+}
+
 div#form_wrapper {
   text-align: left;
-  height: 40px;
-  margin-bottom: 20px;
+  height: 30px;
   position: relative;
 }
 
@@ -47,7 +62,7 @@ div#run-button {
   position: absolute;
   left: 92%;
   width: 55px;
-  height: 25px;
+  height: 22px;
   padding: 2px;
   text-align: center;
   vertical-align: middle;
@@ -59,8 +74,18 @@ div#run-button {
 
 div#run-button-text {
   position: absolute;
-  top: 20%;
-  left: 20%;
+  top: 15%;
+  left: 23%;
+}
+
+div#run-button-loader {
+  position: absolute;
+  left: 92%;
+  top: 5%;
+  width: 43px;
+  height: 11px;
+  background-image: url('ajax-loader.png');
+  display: none;
 }
 
 input[type="text"] {
@@ -70,10 +95,6 @@ input[type="text"] {
   padding-left: 10px;
   padding-right: 10px;
   float: left;
-}
-
-span#spin-wrapper {
-   display: none;
 }
 
 pre {

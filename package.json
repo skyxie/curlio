@@ -13,6 +13,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
+    "ws" : "*",
     "ejs" : "*",
     "request" : "*",
     "async" : "*",

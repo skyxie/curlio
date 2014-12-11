@@ -263,7 +263,12 @@ Request.prototype.run = function(runCb) {
       self.sendFunction(),
     ],
     function runTimerCb(error) {
-      self.emit('run_complete', self, self._runTimer.stop());
+      if (error) {
+        self.emit('run_error', self, error);
+      } else {
+        self.emit('run_complete', self, self._runTimer.stop());
+      }
+      self.removeAllListeners();
       runCb(error);
     }
   );
