@@ -22,11 +22,9 @@
 
         $('#spin-wrapper').hide();
 
-        var requestElem = new EJS({url: 'request.html.ejs'}).render({'request' : request});
-        $('#response').prepend(requestElem);
+        var requestElem = new EJS({url: 'request.html.ejs'}).render({'request' : request, 'response' : response});
 
-        var responseElem = new EJS({url: 'response.html.ejs'}).render({'response' : response});
-        $('#response').prepend(responseElem);
+        $('#response').prepend(requestElem);
       }
 
       $('#url-form').ajaxForm({
