@@ -48,7 +48,7 @@ RequestController.prototype.index = function() {
   var self = this;
 
   return function index(req, res) {
-    res.render("index.html.ejs");
+    res.render("index.html.ejs", {'locals' : {'url' : req.param('url')}});
   };
 };
 
