@@ -36,15 +36,23 @@ div.block {
   box-shadow: 0 2px 4px rgba(0,0,0,.1);
 }
 
-div.collapse-expand {
+div.collapse-expand-wrapper {
   float: right;
-  width: 11px;
-  height: 11px;
-  background-image: url('collapse_expand.png');
+  position: relative;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
+  background-color: #B1E4E3;
+  border-radius: 15px;
 }
-div.collapse { background-position: -11px 0px; }
-div.expand { background-position: 0px 0px; }
+
+div.collapse-expand {
+  position: absolute;
+  bottom: 1px;
+  left: 3px;
+  font-family: monospace;
+  color: #fff;
+}
 
 div#socket-status {
   text-align: left;
@@ -76,16 +84,6 @@ div#run-button-text {
   position: absolute;
   top: 15%;
   left: 23%;
-}
-
-div#run-button-loader {
-  position: absolute;
-  left: 92%;
-  top: 5%;
-  width: 43px;
-  height: 11px;
-  background-image: url('ajax-loader.png');
-  display: none;
 }
 
 input[type="text"] {

@@ -4,7 +4,9 @@
   responseBody = responseBody.replace(/"(http[^"]*)"/g, '"<a href="$1">$1</a>');
 %>
 <div class="request block">
-  <div class="collapse-expand expand"></div>
+  <div class="collapse-expand-wrapper">
+    <div class="collapse-expand">+</div>
+  </div>
   <div class="request-title">
     <b><%= request.method %></b> <%= request.url %><br>
   </div>

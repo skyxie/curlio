@@ -35,7 +35,6 @@
 
         if (data.event === 'run_complete') {
           $('#run-button').show();
-          $("#run-button-loader").hide();
           socketLog('Run '+data.request_name+' in '+data.elapsedtime+'ms');
         } else if (data.event === 'load_complete') {
           socketLog('Loaded '+data.request_name+' in '+data.elapsedtime+'ms');
@@ -51,15 +50,12 @@
       });
 
       $('#response').on('click', 'div.collapse-expand', function(event) {
-        var e = $(this);
-        if (e.hasClass('expand')) {
-          e.parent().find(".req-resp").hide();
-          e.removeClass('expand');
-          e.addClass('collapse');
+        if (this.innerHTML == "+") {
+          $(this).parents("div.request").find("div.req-resp").hide();
+          this.innerHTML = "-";
         } else {
-          e.parent().find(".req-resp").show();
-          e.removeClass('collapse');
-          e.addClass('expand');
+          $(this).parents("div.request").find("div.req-resp").show();
+          this.innerHTML = "+";
         }
       });
     });
@@ -71,17 +67,17 @@
 
   <div class="wrapper">
     <div id="form_wrapper">
+      
       <input type="text" id="url" name="url" title="URL" placeholder="Request Object URL" value="<%= url %>" />
       <div id="run-button">
         <div id="run-button-text">RUN</div>
       </div>
-      <div id="run-button-loader"></div>
     </div>
 
-    <span id="response-wrapper">
-      <span id="response">
-      </span>
-    </span>
+    <div id="response-wrapper">
+      <div id="response">
+      </div>
+    </div>
 
     <div id="socket-status">
       <div>Socket status ...</div>
