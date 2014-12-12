@@ -32,23 +32,13 @@ var Request = function(opts, requestLoader) {
 
 node_util.inherits(Request, events.EventEmitter);
 
-Request.prototype.name = function() {
-  var self = this;
-
-  if (self.metadata) {
-    return "["+self.metadata.title+" - "+self.metadata.description+"]";
-  } else {
-    return "[unloaded request]";
-  }
-};
-
 Request.prototype.loadReq = function(req) {
   this.request = req;
   this.url = Url.parse(req.url);
 };
 
 Request.prototype.loadObj = function(obj) {
-  this.metadata = obj.metadata;
+  this.name = obj.name;
   this.parser = obj.parser;
 
   this.loadReq(obj.request);

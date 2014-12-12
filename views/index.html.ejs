@@ -49,12 +49,13 @@
         socket.send(message, sendCb);
       });
 
-      $('#response').on('click', 'div.collapse-expand', function(event) {
+      $('#response').on('click', 'div.plus-minus-button-text', function(event) {
+        var elem = $(this).parents("div.request").find("div.req-resp");
         if (this.innerHTML == "+") {
-          $(this).parents("div.request").find("div.req-resp").hide();
+          elem.hide();
           this.innerHTML = "-";
         } else {
-          $(this).parents("div.request").find("div.req-resp").show();
+          elem.show();
           this.innerHTML = "+";
         }
       });
@@ -66,7 +67,7 @@
 <body>
 
   <div class="wrapper">
-    <div id="form_wrapper">
+    <div id="form_wrapper" style="height:30px;position:relative;">
       
       <input type="text" id="url" name="url" title="URL" placeholder="Request Object URL" value="<%= url %>" />
       <div id="run-button">

@@ -89,8 +89,8 @@ RequestLoader.prototype.loadFunction = function(opts) {
     return self.loadFileFunction(opts.file);
   } else if (opts.url) {
     return self.loadUrlFunction(opts.url);
-  } else {
-    return function(loadCb) { loadCb(null, opts); }
+  } else if (opts.obj) {
+    return function(loadCb) { loadCb(null, opts.obj); }
   }
 };
 

@@ -39,6 +39,9 @@ div.block {
 div.collapse-expand-wrapper {
   float: right;
   position: relative;
+}
+
+div.plus-minus-button {
   width: 15px;
   height: 15px;
   cursor: pointer;
@@ -46,7 +49,7 @@ div.collapse-expand-wrapper {
   border-radius: 15px;
 }
 
-div.collapse-expand {
+div.plus-minus-button-text {
   position: absolute;
   bottom: 1px;
   left: 3px;

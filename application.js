@@ -71,9 +71,9 @@ wss.on('connection', function connection(ws) {
 
       request.run(function(error) {
         if (error) {
-          logger.error("Failed to run request: "+request.name());
+          logger.error("Failed to run request: "+request.name);
         } else {
-          logger.info("Successfully ran request: "+request.name());
+          logger.info("Successfully ran request: "+request.name);
         }
       });
     });

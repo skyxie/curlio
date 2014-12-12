@@ -8,7 +8,7 @@ WebSocketRequestEvents.prototype.attachLoadComplete = function(request) {
   request.on('load_complete', function sendLoadComplete(request, elapsedtime) {
     self.ws.send(JSON.stringify({
       'event' : 'load_complete',
-      'request_name' : request.name(),
+      'request_name' : request.name,
       'elapsedtime' : elapsedtime
     }), self.cb);
 
@@ -51,7 +51,7 @@ WebSocketRequestEvents.prototype.attachRunComplete = function(request) {
   request.on('run_complete', function sendComplete(request, elapsedtime) {
     self.ws.send(JSON.stringify({
       'event' : 'run_complete',
-      'request_name' : request.name(),
+      'request_name' : request.name,
       'elapsedtime' : elapsedtime
     }), self.cb);
   });
