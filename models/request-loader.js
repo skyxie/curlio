@@ -46,6 +46,7 @@ RequestLoader.prototype.loadUrlFunction = function(urlStr) {
           var get = protocol.request({
             'method' : 'GET',
             'hostname' : url.hostname,
+            'port' : url.port,
             'path' : url.path
           }, function(response) {
             cb(null, response);

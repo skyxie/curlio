@@ -24,7 +24,8 @@
     "express-winston": "*",
     "body-parser": "*",
     "async": "*",
-    "ejs" : "*"
+    "ejs" : "*",
+    "mongodb" : "*"
   },
   "devDependencies": {
     "mocha": "*",
