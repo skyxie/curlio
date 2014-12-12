@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <link rel="stylesheet" type="text/css" href="curlio.css">
+  <link rel="stylesheet" type="text/css" href="new.css">
+  <script type="text/javascript" src="jquery-2.1.1.js"></script>
+  <script type="text/javascript" src="ejs.js"></script>
+  <script type="text/javascript" src="underscore.js"></script>
+
+  <script>
+    $( document ).ready(function() {
+      function getHeaderObj(elem) {
+        return _.object(
+          _.compact(_.map($('#form-wrapper').find('input[type=text].header-key'), function(elem) {
+            return elem.value;
+          })),
+          _.compact(_.map($('#form-wrapper').find('input[type=text].header-value'), function(elem) {
+            return elem.value;
+          }))
+        );
+      }
+
+      $('#save-button').on('click', function() {
+        var elem = $(this);
+
+        var message = {
+          'name' : $('#name').val(),
+          'request' : {
+            'url' : $('#request_url').val(),
+            'method' : $('select option:selected').val(),
+            'headers' : getHeaderObj(elem)
+          }
+        };
+
+        var prereqUrl = $('#prereq_url').val();
+        if (prereqUrl) {
+          message.prereq = {'url' : prereqUrl};
+        }
+
+        if ($('#parser').is(':checked')) {
+          message.parser = $('#parser').val();
+        }
+
+        if (message.parser == 'json' || /application\/.*json/.exec(message.request.headers['Content-Type'])) {
+          message.request.body = JSON.parse($('#body').val());
+        } else {
+          message.request.body = $('#body').val();
+        }
+
+        $.ajax({
+          "type" : "POST",
+          "url" : "/saved_requests",
+          "dataType" : "json",
+          "success" : function(data) {
+            var savedReq = JSON.stringify(data);
+            $("#save-button").hide();
+            $("#exec-button").show();
+            $("#exec-form-url").value = savedReq.url;
+          }
+        });
+      });
+
+      $("#exec-button").on('click', function() { $("exec-form").submit(); });
+    });
+  </script>
+
+  <title>curlio</title>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div id="form-wrapper">
+      <form id="exec-form" method="GET" action='/'>
+
+      <div class="form-wrapper">
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">NAME</div>
+        </div>
+        <div class="input-wrapper">
+          <input id="name" name="name" type="text" class="name" placeholder="NAME"></input>
+        </div>
+      </div>
+
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">METHOD</div>
+        </div>
+        <div class="input-wrapper">
+          <select id="method" name="method">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">URL</div>
+        </div>
+        <div class="input-wrapper">
+          <input id="request_url" name="request_url" type="text" class="url" placeholder="URL"></input>
+        </div>
+      </div>
+
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">PREREQ</div>
+        </div>
+        <div class="input-wrapper">
+          <input id="prereq_url" name="prereq_url" type="text" class="prereq" placeholder="Prereq URL"></input>
+        </div>
+      </div>
+
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">JSON?</div>
+        </div>
+        <div class="input-wrapper">
+          <input id="parser" name="parser" type="checkbox" value="json" checked></input>
+        </div>
+      </div
+
+      <div class="attribute-wrapper">
+        <div class="label-wrapper">
+          <div class="label">HEADERS</div>
+        </div>
+        <div class="input-wrapper">
+          <% include header.html.ejs %>
+        </div>
+      </div>
+
+      <div class="attribute-wrapper body-wrapper">
+        <div class="label-wrapper">
+          <div class="label">BODY</div>
+        </div>
+        <div class="input-wrapper">
+          <textarea id="body" name="body" placeholder="BODY"></textarea>
+        </div>
+      </div>
+
+      <div class="action-wrapper">
+        <div id="save-button" class="action-button">
+          <div class="action-button-text">SAVE</div>
+        </div>
+        <div id="exec-button" class="action-button" style="display:none;">
+          <div class="action-button-text">EXEC</div>
+          <input id="exec-form-url" type="hidden" name="url">
+        </div>
+      </div>
+      </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</body>
+</html>
