@@ -69,7 +69,7 @@
   <div class="wrapper">
     <div id="form_wrapper" style="height:30px;position:relative;">
       
-      <input type="text" id="url" name="url" title="URL" placeholder="Request Object URL" value="<%= url %>" />
+      <input type="text" id="url" name="url" placeholder="Request Object URL" <% if (url) { %>value="<%= url %>"<% } %> />
       <div id="run-button">
         <div id="run-button-text">RUN</div>
       </div>

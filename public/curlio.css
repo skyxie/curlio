@@ -89,7 +89,7 @@ div#run-button-text {
   left: 23%;
 }
 
-input[type="text"] {
+input[type="text"]#url {
   position: absolute;
   width: 88%;
   min-height: 20px;
