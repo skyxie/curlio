@@ -7,7 +7,6 @@ var express = require("express");
 var expressWinston = require("express-winston");
 var bodyParser = require("body-parser");
 var WebSocketServer = require('ws').Server;
-var MongoClient = require('mongodb').MongoClient
 
 var Request = require(path.join(__dirname, 'models', 'request'));
 var RequestLoader = require(path.join(__dirname, 'models', 'request-loader'));
@@ -35,7 +34,6 @@ app.use(expressWinston.errorLogger({"transports" : transports}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
-var mongoUrl = process.env.MONGO || 'mongodb://localhost:27017/curlio';
 var port = process.env.PORT || 8000;
 
 app.listen(port, function() {
@@ -44,18 +42,6 @@ app.listen(port, function() {
 
   app.get('/', function(req, res) {
     res.render("index.html.ejs", {'locals' : {'url' : req.param('url')}});
-  });
-
-  app.get('/new', function(req, res) {
-    res.render("new.html.ejs");
-  });
-
-  MongoClient.connect(mongoUrl, function(error, db) {
-    if (error) {
-      logger.error("Failed to connect to mongo server at %s - %s", mongoUrl, error.message);
-    } else {
-      (new SavedRequestsController(logger, db.collection('saved_requests'))).attach(app);
-    }
   });
 });
 
