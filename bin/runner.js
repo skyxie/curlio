@@ -10,8 +10,15 @@ var Request = require(path.resolve('models', 'request'));
 var RequestLoader = require(path.resolve('models', 'request-loader'));
 var LoggerRequestEvents = require(path.resolve('models', 'logger-request-events'));
 
+commander.version('0.0.1')
+  .option('-c, --concurrency [c]', 'Run c concurrent requests')
+  .option('-u, --url [url]', 'Pull requests from url')
+  .option('-f, --file [file]', 'Pull requests from file')
+  .option('-l, --loglevel [level]', 'Logging level')
+  .parse(process.argv);
+
 var loggerTransport = new winston.transports.Console({
-  "level" : (process.env.LOG_LEVEL || 'info'),
+  "level" : (commander.loglevel || 'info'),
   "dumpExceptions" : true,
   "showStack" : true,
   "colorize" : true
@@ -19,19 +26,13 @@ var loggerTransport = new winston.transports.Console({
 
 var logger = new winston.Logger({"transports" : [ loggerTransport ]});
 
-commander.version('0.0.1')
-  .option('-c, --concurrency [c]', 'Run c concurrent requests')
-  .option('-u, --url [url]', 'Pull requests from url')
-  .option('-f, --file [file]', 'Pull requests from file')
-  .parse(process.argv);
+var requestLoader = new RequestLoader(logger);
+
+var lre = new LoggerRequestEvents(logger);
 
 var opts = {"file" : commander.file, "url" : commander.url };
 
-var requestLoader = new RequestLoader(logger);
-
 var concurrency = commander.concurrency || 1;
-
-var lre = new LoggerRequestEvents(logger);
 
 Async.parallel(
   _.map(_.range(concurrency), function(i) {
