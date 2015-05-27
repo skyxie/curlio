@@ -75,7 +75,7 @@ RequestLoader.prototype.loadFileFunction = function(file) {
     } else {
       self.logger.debug("Loading request object from file: %s", file);
       Async.waterfall([
-        function readFile(cb) { fs.readFile(file, cb); },
+        function readFile(cb) { fs.readFile(file, 'utf8', cb); },
         function parseBuffer(buffer, cb) { utils.parseJSON(buffer.toString(), cb); },
         self.setCacheFunction('file', file)
       ], loadFileCb);
