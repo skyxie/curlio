@@ -62,7 +62,7 @@ Request.prototype.loadFunction = function() {
         cb(error);
       } else {
         self.loadObj(obj);
-        self.emit('load_complete', self, self._loadTimer.stop());
+        self.emit('load_complete', self, obj, self._loadTimer.stop());
         cb();
       }
     });
@@ -73,7 +73,9 @@ Request.prototype.conditionFunction = function(conditionStr) {
   var self = this;
 
   return function customCondition() {
-    return "1" === ejs.render(conditionStr, { 'locals': {'responseBody' : self.responseBody, 'response' : self.response }});
+    var conditonResult = ejs.render(conditionStr, { 'responseBody' : self.responseBody, 'response' : self.response });
+    self.emit('condition', self, conditionStr, conditonResult);
+    return "1" === conditonResult;
   };
 };
 
@@ -93,10 +95,10 @@ Request.prototype.pollFunction = function(poll) {
 
   if (poll) {
     self._pollInterval = poll.interval;
-    return self.conditionFunction(poll.condition)
+    return self.conditionFunction(poll.condition);
   } else {
     // Default behavior for polling is no polling
-    return function() { return false; }
+    return function() { return false; };
   }
 };
 
@@ -140,7 +142,7 @@ Request.prototype.applyPrereqFunction = function() {
 
   return function(cb) {
     if (self.prereq) {
-      requestStr = ejs.render(JSON.stringify(self.request), {'locals' : { 'prereq' : self.prereq }});
+      requestStr = ejs.render(JSON.stringify(self.request), { 'prereq' : self.prereq });
 
       utils.parseJSON(requestStr, function(error, obj) {
         self.loadReq(obj);
@@ -165,7 +167,9 @@ Request.prototype.sendRequestFunction = function() {
       "port" : self.request.port,
       "hostname" : url.hostname,
       "path" : url.path,
-      "headers" : self.requestHeaders()
+      "headers" : self.requestHeaders(),
+      "strictSSL": false,
+      "rejectUnauthorized" : false
     }, function(response) {
       utils.readResponseBody(response, cb);
     });
@@ -185,7 +189,7 @@ Request.prototype.parseBodyFunction = function() {
         if (error) {
           cb(error);
         } else {
-          cb(null, obj, response)
+          cb(null, obj, response);
         }
       });
     } else {
@@ -233,7 +237,7 @@ Request.prototype.sendFunction = function() {
             setTimeout(function() { sendParsePoll(cb); }, self._pollInterval);
           } else {
             cb(new Error("Sending request: "+self.request.method+" '"+self.request.url+"' failed with status: "+response.statusCode));
-          } 
+          }
         }
       }
     );

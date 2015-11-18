@@ -20,7 +20,7 @@ var RequestLoader = function(logger) {
 
 RequestLoader.prototype.setCacheFunction = function(type, key) {
   var self = this;
-  
+
   return function setCache(obj, cb) {
     self.logger.debug("Setting request to cache at "+type+"."+key);
     self.cache[type][key] = obj;
@@ -67,7 +67,7 @@ RequestLoader.prototype.loadUrlFunction = function(urlStr) {
 
 RequestLoader.prototype.loadFileFunction = function(file) {
   var self = this;
-  
+
   return function loadFile(loadFileCb) {
     if (self.cache.file[file]) {
       self.logger.debug("Loading request object from cache at %s.%s", 'file', file);
@@ -91,7 +91,7 @@ RequestLoader.prototype.loadFunction = function(opts) {
   } else if (opts.url) {
     return self.loadUrlFunction(opts.url);
   } else if (opts.obj) {
-    return function(loadCb) { loadCb(null, opts.obj); }
+    return function(loadCb) { loadCb(null, opts.obj); };
   }
 };
 
