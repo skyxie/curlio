@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "ws" : "*",
-    "ejs" : "*",
     "request" : "*",
     "async" : "*",
+    "commander" : "*",
     "fs.extra": "*",
     "underscore": "*",
     "winston": "*",
@@ -32,5 +32,6 @@
     "sinon": "*",
     "chai": "*",
     "sinon-chai": "*"
-  }
+  },
+  "private": true
 }
